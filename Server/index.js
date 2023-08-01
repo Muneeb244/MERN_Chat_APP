@@ -5,11 +5,16 @@ const cors = require('cors');
 const morgan = require('morgan');
 require('dotenv').config();
 const socket = require('socket.io');
+const ErrorHandler = require('./src/middlewares/Errorhandler');
+
+const user = require('./src/routers/user')
 
 
 app.use(morgan('tiny'));
 app.use(cors());
 app.use(express.json());
+app.use('/user', user)
+app.use(ErrorHandler)
 
 
 const port = process.env.PORT || 3000;

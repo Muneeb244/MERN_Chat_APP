@@ -2,15 +2,18 @@ import React, { useState } from 'react';
 import { ThreeDots } from 'react-loading-icons';
 import * as yup from 'yup';
 import { Formik } from "formik";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ErrorMessage from '../components/ErrorMessage';
+import {useSignupUserMutation} from '../services/appApi'
 
 function Signup() {
 
     const ref = React.useRef();
-    const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState(null);
     const [image, setImage] = useState(null);
+    const navigate = useNavigate();
+    const [signupUser, {isLoading, error}] = useSignupUserMutation();
+    const [loading, setLoading] = useState(isLoading);
 
     const SUPPORTED_FORMATS = ['image/jpg', 'image/jpeg', 'image/png'];
 
@@ -27,9 +30,33 @@ function Signup() {
                 'Unsupported file format', (value) => !value || (value && SUPPORTED_FORMATS.includes(value.type))),
     })
 
-    const handleSubmit = (values, { resetForm }) => {
-        setIsLoading(true);
-        console.log('submit')
+    const imageUpload = async (image) => {
+        setLoading(true)
+        const data = new FormData();
+        data.append('file', image);
+        data.append('upload_preset', 'dpivkpad3');
+        try {
+            let res = await fetch('https://api.cloudinary.com/v1_1/dpivkpad3/image/upload', {
+                method: 'POST',
+                body: data
+            })
+            res = await res.json();
+            return res.url;
+        } catch (error) {
+            setLoading(false)
+            console.log("from cloudinary", error)
+            setMessage('Something went wrong');
+        }
+    }
+
+    const handleSubmit = async (values, { resetForm }) => {
+        setMessage(null);
+        const url = await imageUpload(values.image);
+        if(!url) return;
+        const res = await signupUser({name: values.name, email: values.email, password: values.password, image: url});
+        setLoading(false);
+        if(res.data.user) return navigate('/login');
+        setMessage(res.data.message || res.data.error);
     }
 
     return (
@@ -50,7 +77,7 @@ function Signup() {
                             {message && <h3 className='font-bold text-base text-red-500 mt-2'>{message}</h3>}
                             <div className='flex flex-col justify-center items-center w-1/2'>
                                 {image && <img src={image} alt='login' className='mt-5 w-[80px] h-[80px] rounded-full' />}
-                                <input type='file' className='mt-5 self-center w-3/5' accept="image/*"
+                                <input type='file' className='mt-5 self-center w-4/5' accept="image/*"
                                     ref={ref}
                                     onChange={(event) => {
                                         setFieldValue("image", event.currentTarget.files[0]);
@@ -66,7 +93,7 @@ function Signup() {
                             <input
                                 type="text"
                                 placeholder='name'
-                                value={values.email}
+                                value={values.name}
                                 onChange={handleChange('name')}
                                 onBlur={handleBlur('name')}
                                 className='mt-7 bg-gray-200 appearance-none border-2 border-gray-200 rounded w-1/2 py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-black'
@@ -101,7 +128,7 @@ function Signup() {
                                 visible={touched["password"]}
                             />
                             <button className='shadow bg-black text-white font-bold py-2 px-4 rounded mt-7' onClick={handleSubmit} type='submit'>
-                                {isLoading ? <ThreeDots stroke='white' fill='white' height={15} /> : "Register"}
+                                {loading ? <ThreeDots stroke='white' fill='white' height={15} /> : "Register"}
                             </button>
                             <p className='mt-3'>
                                 Already have an account?

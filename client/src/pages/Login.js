@@ -3,12 +3,14 @@ import * as yup from 'yup';
 import { Formik } from "formik";
 import { ThreeDots } from 'react-loading-icons';
 import ErrorMessage from '../components/ErrorMessage';
-import { Link } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import {useLoginUserMutation} from '../services/appApi'
 
 function Login() {
 
-    const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState(null);
+    const navigate = useNavigate();
+    const [loginUser, {isLoading, error}] = useLoginUserMutation();
 
 
     const userSchema = yup.object().shape({
@@ -16,9 +18,11 @@ function Login() {
         password: yup.string().min(6, "Password should be 6 characters minimum").required(),
     })
 
-    const handleSubmit = (values, {resetForm}) => {
-        setIsLoading(true);
-        console.log('submit')
+    const handleSubmit = async (values, {resetForm}) => {
+        const user = await loginUser({email: values.email, password: values.password});
+        console.log("login",user)
+        if(user.data.user) return navigate('/chat');
+        setMessage(user.data.message || user.data.error);
     }
 
     return (
