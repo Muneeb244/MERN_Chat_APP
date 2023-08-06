@@ -5,10 +5,22 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Chat from './pages/Chat';
 import Navigation from './components/Navigation';
+import { AppContext, socket } from './context/AppContext';
+import { useState } from 'react';
 
 
 function App() {
+
+  const [rooms, setRooms] = useState([]);
+    const [currentRoom, setCurrentRoom] = useState([]);
+    const [members, setMembers] = useState([]);
+    const [messages, setMessages] = useState([]);
+    const [privateMemberMsg, setPrivateMemberMsg] = useState({});
+    const [newMessages, setNewMessages] = useState({});
+
   return (
+    <AppContext.Provider value={{socket, currentRoom, setCurrentRoom, members, setMembers, messages, setMessages, privateMemberMsg, setPrivateMemberMsg, rooms, setRooms, newMessages, setNewMessages}}>
+
     <BrowserRouter>
       <Navigation />
       <Routes>
@@ -18,6 +30,7 @@ function App() {
         <Route path="/chat" element={<Chat />} />
       </Routes>
     </BrowserRouter>
+    </AppContext.Provider>
   );
 }
 export default App;

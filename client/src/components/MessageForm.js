@@ -1,13 +1,52 @@
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import { BiSolidPaperPlane } from "react-icons/bi";
+import { useSelector } from 'react-redux';
+import { AppContext } from '../context/AppContext';
 
 function MessageForm() {
+
+    const [message, setMessage] = useState("");
+    const user = useSelector(state => state.user);
+    const {socket, currentRoom, setMessages, messages, privateMemberMsg} = useContext(AppContext);
+
+    function getFormatedDate() {
+        const date = new Date();
+        const year = date.getFullYear();
+        let month = (date.getMonth() + 1).toString();
+        month = month.length > 1 ? month : '0' + month;
+        let day = date.getDate().toString();
+        day = day.length > 1 ? day : '0' + day;
+
+        return month + '/' + day + '/' + year;   
+    }
+
+    const todayDate = getFormatedDate();
+
+    socket.off("room-message").on("room-message", (roomMessage) => {
+        console.log('room messages', roomMessage)
+        setMessage(roomMessage)
+    })
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const today = new Date();
+        const minutes = today.getMinutes().toString() < 10 ? '0' + today.getMinutes().toString() : today.getMinutes().toString();
+        const time = today.getHours().toString() + ':' + minutes;
+        const roomId = currentRoom;
+        socket.emit('message-room', roomId, message, user, time, todayDate);
+        setMessage("");
+    }
+
+
     return (
         <div className='w-full h-fit'>
-            <div className='w-full h-[80vh] border-gray border-[2px] mt-1'></div>
+            <div className='w-full h-[80vh] border-gray border-[2px] mt-1'>
+            {!user && <div className='flex items-center w-full h-10 px-5 bg-red-200'>Please Login</div>}
+
+            </div>
             <div className='flex items-center justify-around p-2'>
-                <input type='text' placeholder='your message' className='bg-white appearance-none border-gray-200 rounded w-11/12 py-2 px-4 text-gray-700 leading-tight focus:outline-none border-gray border-2 focus:border-gray-500' />
-                <button className='flex justify-center items-center w-[40px] h-[40px] bg-yellow-400 rounded hover:bg-yellow-500'>
+                <input type='text' placeholder='your message' value={message} onChange={e => setMessage(e.target.value)} className='bg-white appearance-none border-gray-200 rounded w-11/12 p-2 text-gray-700 leading-tight focus:outline-none border-gray border-2 focus:border-gray-500' />
+                <button className='flex justify-center items-center w-[40px] h-[40px] bg-yellow-400 rounded hover:bg-yellow-500' disabled={!user} onClick={handleSubmit}>
                     <BiSolidPaperPlane color='#fff' size={20} className='' />
                 </button>
             </div>

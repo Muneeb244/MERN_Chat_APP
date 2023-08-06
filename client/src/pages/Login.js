@@ -1,16 +1,19 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import * as yup from 'yup';
 import { Formik } from "formik";
 import { ThreeDots } from 'react-loading-icons';
 import ErrorMessage from '../components/ErrorMessage';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
-import {useLoginUserMutation} from '../services/appApi'
+import {useLoginUserMutation} from '../services/appApi';
+import {AppContext} from '../context/AppContext'
 
 function Login() {
 
     const [message, setMessage] = useState(null);
     const navigate = useNavigate();
     const [loginUser, {isLoading, error}] = useLoginUserMutation();
+    const {socket} = useContext(AppContext);
+    
 
 
     const userSchema = yup.object().shape({
@@ -20,8 +23,10 @@ function Login() {
 
     const handleSubmit = async (values, {resetForm}) => {
         const user = await loginUser({email: values.email, password: values.password});
-        console.log("login",user)
-        if(user.data.user) return navigate('/chat');
+        if(user.data.user){
+            socket.emit('new-user');
+            return navigate('/chat');
+        }
         setMessage(user.data.message || user.data.error);
     }
 
