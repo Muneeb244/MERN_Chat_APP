@@ -7,7 +7,7 @@ function MessageForm() {
 
     const [message, setMessage] = useState("");
     const user = useSelector(state => state.user);
-    const {socket, currentRoom, setMessages, messages, privateMemberMsg} = useContext(AppContext);
+    const { socket, currentRoom, setMessages, messages, privateMemberMsg } = useContext(AppContext);
 
     function getFormatedDate() {
         const date = new Date();
@@ -17,14 +17,13 @@ function MessageForm() {
         let day = date.getDate().toString();
         day = day.length > 1 ? day : '0' + day;
 
-        return month + '/' + day + '/' + year;   
+        return month + '/' + day + '/' + year;
     }
 
     const todayDate = getFormatedDate();
 
-    socket.off("room-message").on("room-message", (roomMessage) => {
-        console.log('room messages', roomMessage)
-        setMessage(roomMessage)
+    socket.off("room-messages").on("room-messages", (roomMessage) => {
+        setMessages(roomMessage)
     })
 
     const handleSubmit = (e) => {
@@ -41,8 +40,17 @@ function MessageForm() {
     return (
         <div className='w-full h-fit'>
             <div className='w-full h-[80vh] border-gray border-[2px] mt-1'>
-            {!user && <div className='flex items-center w-full h-10 px-5 bg-red-200'>Please Login</div>}
-
+                {!user && <div className='flex items-center w-full h-10 px-5'>Please Login</div>}
+                {user && messages.map(({ _id: date, messagesByDate }, index) => {
+                    return <div key={index} className='w-full h-fit text-center mt-2 bg-gray-300'>
+                        <p>{date}</p>
+                        {messagesByDate?.map(({content, time, from: sender}, msgIndex)=> {
+                            return <div className=' w-1/2 bg-blue-400 mt-2' key={msgIndex}>
+                                <p>{content}</p>
+                            </div>
+                        })}
+                    </div>
+                })}
             </div>
             <div className='flex items-center justify-around p-2'>
                 <input type='text' placeholder='your message' value={message} onChange={e => setMessage(e.target.value)} className='bg-white appearance-none border-gray-200 rounded w-11/12 p-2 text-gray-700 leading-tight focus:outline-none border-gray border-2 focus:border-gray-500' />

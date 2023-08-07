@@ -45,7 +45,7 @@ async function getLastMessagesFromRoom(room) {
 }
 
 function sortMessagesByDate(messages) {
-    messages.sort(function (a, b) {
+    return messages.sort(function (a, b) {
         let date1 = a._id.split('/');
         let date2 = b._id.split('/');
         date1 = date1[2] + date1[1] + date1[0];
@@ -69,7 +69,7 @@ io.on('connection', socket => {
     })
 
     socket.on('message-room', async (room, content, sender, time, date) => {
-        console.log('message received', content, sender, room, time, date)
+        // console.log('message received\n', content, sender, room, time, date)
         const message = new Message({
             from: sender,
             to: room,
@@ -82,6 +82,23 @@ io.on('connection', socket => {
         await message.save();
         io.to(room).emit('room-messages', roomMessages);
         socket.broadcast.emit('notifications', room);
+    })
+
+    app.delete('/logout', async (req, res) => {
+        console.log('logout', req.body )
+        try {
+            const {_id, newMessages} = req.body.user;
+            const user = await User.findById(_id);
+            user.status = 'offline';
+            user.newMessages = newMessages;
+            await user.save();
+            const memebers = await User.find().select('-password');
+            socket.broadcast.emit('new-user', memebers);
+            res.json({message: 'logged out successfully'})
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message: 'something went wrong'})
+        }
     })
 
 })

@@ -12,6 +12,7 @@ export const userSlice = createSlice({
     extraReducers: builder => {
         builder.addMatcher(appApi.endpoints.signupUser.matchFulfilled, (state, {payload}) => payload)
         builder.addMatcher(appApi.endpoints.loginUser.matchFulfilled, (state, {payload}) => payload)
+        builder.addMatcher(appApi.endpoints.logoutUser.matchFulfilled, () => null)
     }
 })
 

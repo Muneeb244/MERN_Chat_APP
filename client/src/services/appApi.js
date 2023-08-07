@@ -19,10 +19,16 @@ const appApi = createApi({
             })
         }),
 
-        // logoutUser: builder.mutation({
+        logoutUser: builder.mutation({
+            query: payload => ({
+                url: '/logout',
+                method: 'delete',
+                body: payload,
+            })
+        })
 
     })
 })
 
-export const {useLoginUserMutation, useSignupUserMutation} = appApi
+export const {useLoginUserMutation, useSignupUserMutation, useLogoutUserMutation} = appApi
 export default appApi;

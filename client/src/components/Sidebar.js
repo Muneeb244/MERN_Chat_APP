@@ -28,18 +28,29 @@ function Sidebar() {
         .catch(err => console.log(err));
     }
 
+    const joinRoom = (room, isPublic = true) => {
+        if(!user) return alert('Please login first');
+
+        socket.emit('join-room', room);
+        setCurrentRoom(room);
+        if(isPublic) setPrivateMemberMsg(null)
+
+        // socket 
+    }
+
     if(!user) return <></>
 
-    // const rooms = ['first room', 'second room', 'third room'];
 
     return (
         <>
             <div className='flex flex-col justify-center items-center w-full h-1/2'>
                 <h1 className='w-3/5 font-bold text-3xl text-left mb-2'>Available rooms</h1>
                 <div className='w-3/5 h-1/2'>
-                    {rooms.length > 0 ? rooms.map(room => (
-                        <div key={room} className='w-full'>
-                            <h3 className='border-gray border-[1px] p-2'>{room}</h3>
+                    {rooms.length > 0 ? rooms.map((room, index) => (
+                        <div key={index} className='w-full'>
+                            <h3 className='border-gray border-[1px] p-2 cursor-pointer' onClick={() => joinRoom(room)}>
+                                {room} {currentRoom !== room && <span></span>}
+                            </h3>
                         </div>
                     )) : <TailSpin color='#000' stroke='#000' />}
                 </div>
@@ -47,8 +58,8 @@ function Sidebar() {
             <div className='flex flex-col w-full h-1/2 items-center'>
                 <h1 className='font-bold text-2xl'>Members</h1>
                 <div className='w-3/5 h-1/2'>
-                    {members.map(member => (
-                        <div key={member} className='w-full'>
+                    {members.map((member, index) => (
+                        <div key={index} className='w-full'>
                             <h3 className='border-gray border-[1px] p-2'>{member.name}</h3>
                         </div>
                     ))}
