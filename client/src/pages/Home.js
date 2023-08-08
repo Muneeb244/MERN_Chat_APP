@@ -1,8 +1,15 @@
 import React from 'react'
-import { Link } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { AiFillMessage } from "react-icons/ai";
+import { useSelector } from 'react-redux';
+
 
 function Home() {
+
+    const navigation = useNavigate();
+    const user = useSelector(state => state.user);
+    if(user) navigation('/chat');
+
     return (
         <div className='flex w-screen h-[90vh]'>
             <section className=' w-1/2 h-full flex flex-col justify-center items-center'>

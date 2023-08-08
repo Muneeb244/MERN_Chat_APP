@@ -23,6 +23,7 @@ function Login() {
 
     const handleSubmit = async (values, {resetForm}) => {
         const user = await loginUser({email: values.email, password: values.password});
+        console.log(user)
         if(user.data.user){
             socket.emit('new-user');
             return navigate('/chat');

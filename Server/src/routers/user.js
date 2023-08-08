@@ -29,7 +29,7 @@ router.post('/login', asyncMiddleware( async (req, res) => {
     const { email, password } = req.body;
 
     let user = await User.findOne({ email });
-    if (!user) return res.json({ error: 'Invalid email/password' })
+    if (!user) return res.status(400).json({ error: 'Invalid email/password' })
 
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) return res.json({ error: 'Invalid email/password' })

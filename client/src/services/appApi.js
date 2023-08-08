@@ -9,7 +9,7 @@ const appApi = createApi({
                 url: '/user/signup',
                 method: 'post',
                 body: user,
-            })
+            }),
         }),
         loginUser: builder.mutation({
             query: user => ({
@@ -27,7 +27,7 @@ const appApi = createApi({
             })
         })
 
-    })
+    }),
 })
 
 export const {useLoginUserMutation, useSignupUserMutation, useLogoutUserMutation} = appApi

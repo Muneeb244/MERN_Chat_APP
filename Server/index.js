@@ -70,16 +70,15 @@ io.on('connection', socket => {
 
     socket.on('message-room', async (room, content, sender, time, date) => {
         // console.log('message received\n', content, sender, room, time, date)
-        const message = new Message({
+        const message = Message.create({
             from: sender,
             to: room,
             content,
-            time: time,
+            time,
             date
         });
         let roomMessages = await getLastMessagesFromRoom(room);
         roomMessages = sortMessagesByDate(roomMessages);
-        await message.save();
         io.to(room).emit('room-messages', roomMessages);
         socket.broadcast.emit('notifications', room);
     })

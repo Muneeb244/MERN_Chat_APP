@@ -24,8 +24,8 @@ function Navigation() {
             <Link to={!user && '/signup'} className='font-bold mr-10' onClick={user && handleLogout}>{user ? "logout" : "Signup"}</Link>
             {user && <div className='flex items-center'>
             
-              {user && <img src={user.user.image} alt='user' className='w-[50px] h-[50px] rounded-full' />}
-              <p className='font-bold ml-2'>{user.user.name}</p>
+              {user && <img src={user.user?.image} alt='user' className='w-[50px] h-[50px] rounded-full' />}
+              <p className='font-bold ml-2'>{user.user?.name}</p>
             </div>}
         </div>
     </div>
