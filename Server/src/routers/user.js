@@ -25,7 +25,7 @@ router.post('/signup', asyncMiddleware(async (req, res) => {
 
 }));
 
-router.post('/login', asyncMiddleware( async (req, res) => {
+router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     let user = await User.findOne({ email });
@@ -34,10 +34,13 @@ router.post('/login', asyncMiddleware( async (req, res) => {
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) return res.json({ error: 'Invalid email/password' })
 
+    user.status = 'online';
+    await user.save();
+
     res.json({user})
     // const token = jwt.sign({ id: user.id, name: user.name }, process.env.jwtSecret)
     // res.json({ token });
-}))
+})
 
 
 module.exports = router;

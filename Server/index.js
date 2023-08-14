@@ -70,7 +70,7 @@ io.on('connection', socket => {
 
     socket.on('message-room', async (room, content, sender, time, date) => {
         // console.log('message received\n', content, sender, room, time, date)
-        const message = Message.create({
+        await Message.create({
             from: sender,
             to: room,
             content,

@@ -1,12 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { AppContext } from '../context/AppContext';
 import { TailSpin } from 'react-loading-icons';
+import {addNotifications, resetNotifications} from '../Redux/userSlice'
 
 function Sidebar() {
 
     const user = useSelector(state => state.user);
     const { socket, setMembers, members, setCurrentRoom, setRooms, rooms, privateMemberMsg, setPrivateMemberMsg, currentRoom } = useContext(AppContext);
+
+    const dispatch = useDispatch();
 
     socket.off('new-user').on('new-user', (payload) => {
         setMembers(payload);
@@ -28,19 +31,34 @@ function Sidebar() {
             .catch(err => console.log(err));
     }
 
+    function orderIds(id1, id2) {
+        if (id1 > id2) {
+            return id1 + "-" + id2;
+        } else {
+            return id2 + "-" + id1;
+        }
+    }
+
     const joinRoom = (room, isPublic = true) => {
         if (!user) return alert('Please login first');
 
         socket.emit('join-room', room);
         setCurrentRoom(room);
         if (isPublic) setPrivateMemberMsg(null)
+
+        dispatch(resetNotifications(room));
     }
 
+    socket.off('notifications').on('notifications', (room) => {
+        if (currentRoom != room) dispatch(addNotifications(room));
+    });
+
     function handlePrivateMemberMsg(member) {
-        console.log(member);
         setPrivateMemberMsg(member);
-        joinRoom();
+        const roomId = orderIds(user.user._id, member._id);
+        joinRoom(roomId, false);
     }
+
 
     if (!user) return <></>
 
@@ -52,10 +70,10 @@ function Sidebar() {
                 <div className='w-3/5 h-1/2'>
                     {rooms.length > 0 ? rooms.map((room, index) => (
                         <div key={index} className={currentRoom === room ? "flex flex-row items-center w-full border-gray border-[1px] bg-blue-600 text-white" : "flex flex-row items-center w-full border-gray border-[1px]"}>
-                            {/* <div w-full> */}
                             <h3 className='w-[90%] p-2 cursor-pointer' onClick={() => joinRoom(room)}>
                                 {room}
                             </h3>
+                            <div className='w-[50px] h-[50px] text-black flex justify-center items-center'>{user.user.newMessages[room]}</div>
                         </div>
                         // </div>
                     )) : <TailSpin color='#000' stroke='#000' />}

@@ -55,7 +55,7 @@ function Signup() {
         if(!url) return;
         const res = await signupUser({name: values.name, email: values.email, password: values.password, image: url});
         setLoading(false);
-        if(res.data.user) return navigate('/chat');
+        if(res.data.user) return navigate('/login');
         setMessage(res.data.message || res.data.error);
     }
 

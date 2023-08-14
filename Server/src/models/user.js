@@ -17,23 +17,27 @@ const userSchema = new mongoose.Schema({
     },
     image: {
         type: "String",
-
     },
-    newMessage: {
-        type: "Object",
+    newMessages: {
+        type: Object,
         default: {}
     },
     status: {
         type: "String",
         default: "offline"
+    },
+    date: {
+        type: Date,
+        default: Date.now()
     }
-}, { minimize: false });
+}, {minimize: false});
 
-userSchema.pre('save', async function () {
-    this.password = await bcrypt.hash(this.password, 10);
-    console.log(this.password)
+userSchema.pre('save', async function (next) {
+    if(!this.isModified('password')) return next();
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
 })
 
-const User = new mongoose.model('User', userSchema);
+const User = mongoose.model('User', userSchema);
 
 module.exports = User;
