@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { AppContext } from '../context/AppContext';
 import { TailSpin } from 'react-loading-icons';
-import {addNotifications, resetNotifications} from '../Redux/userSlice'
+import { addNotifications, resetNotifications } from '../Redux/userSlice'
 
 function Sidebar() {
 
@@ -84,10 +84,19 @@ function Sidebar() {
                 <div className='w-3/5 h-1/2 cursor-pointer'>
                     {members.map((member, index) => {
                         return (
-                        <div key={index} className={member._id === user.user._id ? 'w-full text-gray-400' : (privateMemberMsg?._id === member?._id ? 'w-full bg-blue-500' : 'w-full')} onClick={member._id !== user.user._id ? () => handlePrivateMemberMsg(member) : () => {}} >
-                            <h3 className='border-gray border-[1px] p-2'>{member.name}</h3>
-                        </div>
-                    )})}
+                            <div key={index} className={member._id === user.user._id ? 'w-full text-gray-400' : (privateMemberMsg?._id === member?._id ? 'w-full bg-blue-500' : 'w-full ')} onClick={member._id !== user.user._id ? () => handlePrivateMemberMsg(member) : () => { }} >
+                                <div className='flex flex-row w-full border-gray border-[1px] p-2 items-center'>
+                                    <img className='w-[40px] h-[40px] rounded-full mr-3' src={member.image} alt="" />
+                                    <h3 className=''>{member.name}</h3>
+                                    <h3 className='ml-1'>{user.user._id === member._id ? '(you)' : ''}</h3>
+                                    <div className='w-full flex justify-end'>
+                                        <div className={member.status == 'offline' ? 'w-3 h-3 bg-red-600 rounded-full' : 'w-3 h-3 bg-green-600 rounded-full'}></div>
+                                    </div>
+                                    <span className="badge rounded-pill bg-primary">{user.user.newMessages[orderIds(member._id, user.user._id)]}</span>
+                                </div>
+                            </div>
+                        )
+                    })}
                 </div>
             </div>
         </>

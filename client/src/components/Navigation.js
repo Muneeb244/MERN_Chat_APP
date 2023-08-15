@@ -11,12 +11,9 @@ function Navigation() {
   const user = useSelector(state => state.user)
   const [logoutUser] = useLogoutUserMutation()
 
-  const handleLogout = async () => {
-    await logoutUser(user);
-   
-  }
-  const handleLogout2 =  () => {
+  const handleLogout =  () => {
     dispatch(logout())
+    logoutUser(user)
     window.location.replace("/");
   }
 
@@ -28,7 +25,7 @@ function Navigation() {
         </Link>
         <div className='w-4/12 sm:w-2/12 flex justify-around items-center'>
             {!user && <Link to='/login' className='font-bold'>Login</Link>}
-            <Link to={!user && '/signup'} className='font-bold mr-10' onClick={user && handleLogout2}>{user ? "logout" : "Signup"}</Link>
+            <Link to={!user && '/signup'} className='font-bold mr-10' onClick={user && handleLogout}>{user ? "logout" : "Signup"}</Link>
             {user && <div className='flex items-center'>
             
               {user && <img src={user.user?.image} alt='user' className='w-[50px] h-[50px] rounded-full' />}
